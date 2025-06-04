@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Match 💖</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background: linear-gradient(to bottom right, pink, lavender);
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+    }
+    h1 {
+      color: hotpink;
+      font-size: 2.5em;
+    }
+    .form-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .form-column {
+      flex: 1;
+      min-width: 250px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: hotpink;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1.1em;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.4em;
+      color: deeppink;
+      font-weight: bold;
+    }
+    .hearts {
+      font-size: 2em;
+      animation: float 1.5s infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+    .admin-btn {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      opacity: 0.3;
+      cursor: pointer;
+    }
+    #admin-panel {
+      display: none;
+      margin-top: 30px;
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 0.9em;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💖 Love Match 💖</h1>
+    <div class="form-group">
+      <div class="form-column">
+        <h3>👩 Thông tin của bạn</h3>
+        <input type="text" id="yourName" placeholder="Tên bạn">
+        <input type="date" id="yourBirthday">
+        <input type="text" id="yourSchool" placeholder="Trường học của bạn">
+        <input type="text" id="yourLocation" placeholder="Tỉnh / Huyện / Xã của bạn">
+      </div>
+      <div class="form-column">
+        <h3>👨 Thông tin người ấy</h3>
+        <input type="text" id="loverName" placeholder="Tên người ấy">
+        <input type="date" id="loverBirthday">
+        <input type="text" id="loverSchool" placeholder="Trường học của người ấy">
+        <input type="text" id="loverLocation" placeholder="Tỉnh / Huyện / Xã của người ấy">
+      </div>
+    </div>
+    <button onclick="calculateLove()">Tính phần trăm 💘</button>
+
+    <div class="result" id="result"></div>
+
+    <div class="hearts">💗💗💗</div>
+
+    <div id="admin-panel">
+      <h3>📋 Dữ liệu người dùng</h3>
+      <table id="data-table">
+        <thead>
+          <tr><th>Bạn</th><th>Người ấy</th><th>Ngày sinh bạn</th><th>Ngày sinh ấy</th><th>Trường bạn</th><th>Trường ấy</th><th>Địa chỉ bạn</th><th>Địa chỉ ấy</th><th>Kết quả</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <button class="admin-btn" onclick="adminLogin()">👑</button>
+
+  <script>
+    function calculateLove() {
+      const yourName = document.getElementById('yourName').value;
+      const loverName = document.getElementById('loverName').value;
+      const yourBirthday = document.getElementById('yourBirthday').value;
+      const loverBirthday = document.getElementById('loverBirthday').value;
+      const yourSchool = document.getElementById('yourSchool').value;
+      const loverSchool = document.getElementById('loverSchool').value;
+      const yourLocation = document.getElementById('yourLocation').value;
+      const loverLocation = document.getElementById('loverLocation').value;
+
+      if (!yourName || !loverName || !yourBirthday || !loverBirthday || !yourSchool || !loverSchool || !yourLocation || !loverLocation) {
+        alert("Bạn cần điền đầy đủ thông tin nha! 🥺");
+        return;
+      }
+
+      const percent = Math.floor((yourName.length + loverName.length + yourSchool.length + loverSchool.length + new Date(yourBirthday).getDate() + new Date(loverBirthday).getDate()) % 100) + 1;
+
+      let message = '';
+      if (percent < 50) message = 'Có lẽ tình yêu này còn cần thêm chút thời gian và phép màu! 💭';
+      else if (percent < 80) message = 'Tình yêu đang nở rộ rồi đó! 💐 Cứ tiến lên nhé!';
+      else message = 'Trái tim các bạn chắc chắn đang cùng nhịp đập! 💖';
+
+      document.getElementById('result').innerText = `❤️ ${percent}% - ${message}`;
+      addToTable(yourName, loverName, yourBirthday, loverBirthday, yourSchool, loverSchool, yourLocation, loverLocation, percent);
+    }
+
+    function addToTable(n1, n2, b1, b2, s1, s2, l1, l2, p) {
+      const tbody = document.querySelector('#data-table tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${n1}</td><td>${n2}</td><td>${b1}</td><td>${b2}</td><td>${s1}</td><td>${s2}</td><td>${l1}</td><td>${l2}</td><td>${p}%</td>`;
+      tbody.appendChild(tr);
+    }
+
+    function adminLogin() {
+      const user = prompt("Nhập tên đăng nhập:");
+      const pass = prompt("Nhập mật khẩu:");
+      if (user === 'min2k7' && pass === 'min2k7123') {
+        document.getElementById('admin-panel').style.display = 'block';
+      } else {
+        alert("Sai thông tin rồi nhé! ❌");
+      }
+    }
+  </script>
+</body>
+</html>
