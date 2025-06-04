@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Love Match 💖</title>
+  <title>Love Match 💘</title>
   <style>
     body {
       font-family: 'Comic Sans MS', cursive;
@@ -117,7 +117,9 @@
       </div>
     </div>
     <button onclick="calculateLove()">Tính phần trăm 💘</button>
+
     <div class="result" id="result"></div>
+
     <div class="hearts">💗💗💗</div>
 
     <div id="admin-panel">
@@ -130,18 +132,16 @@
       </table>
     </div>
   </div>
+
   <button class="admin-btn" onclick="adminLogin()">👑</button>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBCh1SkrZBFoRVYQCwefuGgUDgys1D9yLU",
       authDomain: "love-match-app-ebc3e.firebaseapp.com",
-      databaseURL: "https://love-match-app-ebc3e-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "love-match-app-ebc3e",
       storageBucket: "love-match-app-ebc3e.appspot.com",
       messagingSenderId: "786340035981",
@@ -149,11 +149,10 @@
       measurementId: "G-E9RD24C7FS"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    function calculateLove() {
+    window.calculateLove = async function() {
       const yourName = document.getElementById('yourName').value;
       const loverName = document.getElementById('loverName').value;
       const yourBirthday = document.getElementById('yourBirthday').value;
@@ -169,7 +168,6 @@
       }
 
       const percent = Math.floor((yourName.length + loverName.length + yourSchool.length + loverSchool.length + new Date(yourBirthday).getDate() + new Date(loverBirthday).getDate()) % 100) + 1;
-
       let message = '';
       if (percent < 50) message = 'Có lẽ tình yêu này còn cần thêm chút thời gian và phép màu! 💭';
       else if (percent < 80) message = 'Tình yêu đang nở rộ rồi đó! 💐 Cứ tiến lên nhé!';
@@ -177,9 +175,7 @@
 
       document.getElementById('result').innerText = `❤️ ${percent}% - ${message}`;
 
-      // Lưu dữ liệu vào Firebase
-      const newEntry = db.ref("matches").push();
-      newEntry.set({
+      await addDoc(collection(db, "matches"), {
         yourName,
         loverName,
         yourBirthday,
@@ -188,27 +184,24 @@
         loverSchool,
         yourLocation,
         loverLocation,
-        percent,
-        timestamp: Date.now()
+        result: percent,
+        timestamp: new Date()
       });
     }
 
-    function adminLogin() {
+    window.adminLogin = async function() {
       const user = prompt("Nhập tên đăng nhập:");
       const pass = prompt("Nhập mật khẩu:");
       if (user === 'min2k7' && pass === 'min2k7123') {
         document.getElementById('admin-panel').style.display = 'block';
-
-        // Lấy dữ liệu từ Firebase
-        db.ref("matches").once('value', snapshot => {
-          const tbody = document.querySelector('#data-table tbody');
-          tbody.innerHTML = '';
-          snapshot.forEach(child => {
-            const data = child.val();
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${data.yourName}</td><td>${data.loverName}</td><td>${data.yourBirthday}</td><td>${data.loverBirthday}</td><td>${data.yourSchool}</td><td>${data.loverSchool}</td><td>${data.yourLocation}</td><td>${data.loverLocation}</td><td>${data.percent}%</td>`;
-            tbody.appendChild(tr);
-          });
+        const querySnapshot = await getDocs(collection(db, "matches"));
+        const tbody = document.querySelector('#data-table tbody');
+        tbody.innerHTML = '';
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${d.yourName}</td><td>${d.loverName}</td><td>${d.yourBirthday}</td><td>${d.loverBirthday}</td><td>${d.yourSchool}</td><td>${d.loverSchool}</td><td>${d.yourLocation}</td><td>${d.loverLocation}</td><td>${d.result}%</td>`;
+          tbody.appendChild(tr);
         });
       } else {
         alert("Sai thông tin rồi nhé! ❌");
