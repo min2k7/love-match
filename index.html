@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Love Match 💖</title>
   <style>
     body {
@@ -117,9 +117,7 @@
       </div>
     </div>
     <button onclick="calculateLove()">Tính phần trăm 💘</button>
-
     <div class="result" id="result"></div>
-
     <div class="hearts">💗💗💗</div>
 
     <div id="admin-panel">
@@ -132,10 +130,29 @@
       </table>
     </div>
   </div>
-
   <button class="admin-btn" onclick="adminLogin()">👑</button>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
   <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCh1SkrZBFoRVYQCwefuGgUDgys1D9yLU",
+      authDomain: "love-match-app-ebc3e.firebaseapp.com",
+      databaseURL: "https://love-match-app-ebc3e-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "love-match-app-ebc3e",
+      storageBucket: "love-match-app-ebc3e.appspot.com",
+      messagingSenderId: "786340035981",
+      appId: "1:786340035981:web:72d203c017bd353f7651c4",
+      measurementId: "G-E9RD24C7FS"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     function calculateLove() {
       const yourName = document.getElementById('yourName').value;
       const loverName = document.getElementById('loverName').value;
@@ -159,14 +176,21 @@
       else message = 'Trái tim các bạn chắc chắn đang cùng nhịp đập! 💖';
 
       document.getElementById('result').innerText = `❤️ ${percent}% - ${message}`;
-      addToTable(yourName, loverName, yourBirthday, loverBirthday, yourSchool, loverSchool, yourLocation, loverLocation, percent);
-    }
 
-    function addToTable(n1, n2, b1, b2, s1, s2, l1, l2, p) {
-      const tbody = document.querySelector('#data-table tbody');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${n1}</td><td>${n2}</td><td>${b1}</td><td>${b2}</td><td>${s1}</td><td>${s2}</td><td>${l1}</td><td>${l2}</td><td>${p}%</td>`;
-      tbody.appendChild(tr);
+      // Lưu dữ liệu vào Firebase
+      const newEntry = db.ref("matches").push();
+      newEntry.set({
+        yourName,
+        loverName,
+        yourBirthday,
+        loverBirthday,
+        yourSchool,
+        loverSchool,
+        yourLocation,
+        loverLocation,
+        percent,
+        timestamp: Date.now()
+      });
     }
 
     function adminLogin() {
@@ -174,6 +198,18 @@
       const pass = prompt("Nhập mật khẩu:");
       if (user === 'min2k7' && pass === 'min2k7123') {
         document.getElementById('admin-panel').style.display = 'block';
+
+        // Lấy dữ liệu từ Firebase
+        db.ref("matches").once('value', snapshot => {
+          const tbody = document.querySelector('#data-table tbody');
+          tbody.innerHTML = '';
+          snapshot.forEach(child => {
+            const data = child.val();
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${data.yourName}</td><td>${data.loverName}</td><td>${data.yourBirthday}</td><td>${data.loverBirthday}</td><td>${data.yourSchool}</td><td>${data.loverSchool}</td><td>${data.yourLocation}</td><td>${data.loverLocation}</td><td>${data.percent}%</td>`;
+            tbody.appendChild(tr);
+          });
+        });
       } else {
         alert("Sai thông tin rồi nhé! ❌");
       }
